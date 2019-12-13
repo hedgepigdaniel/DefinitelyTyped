@@ -10,7 +10,9 @@ export interface DefaultImportedComponent<Props> {
     default: React.ComponentType<Props>;
 }
 
-export type DefaultComponent<Props> = React.ComponentType<Props> | DefaultImportedComponent<Props>;
+export type DefaultComponent<Props> =
+    React.ComponentType<Props> |
+    DefaultImportedComponent<Props>;
 
 export interface Options<Props> {
     cacheKey?(props: Props): any;
@@ -27,7 +29,10 @@ export interface LoadableComponentMethods<Props> {
     load(props?: Props): Promise<React.ComponentType<Props>>;
 }
 
-export type LoadableComponent<Props> = React.ComponentType<Props & { fallback?: JSX.Element }> & LoadableComponentMethods<Props>;
+export type LoadableComponent<Props> =
+    React.ComponentType<Props & { fallback?: JSX.Element }> &
+    LoadableComponentMethods<Props>;
+
 export type LoadableLibrary<TModule> = React.ComponentType<{
     fallback?: JSX.Element;
     children?: (module: TModule) => React.ReactNode;
@@ -36,7 +41,10 @@ export type LoadableLibrary<TModule> = React.ComponentType<{
     TModule &
     LoadableComponentMethods<object>;
 
-declare function lib<Props>(loadFn: (props: object) => Promise<Props>, options?: Options<any>): LoadableLibrary<Props>;
+declare function lib<Props>(
+    loadFn: (props: object) => Promise<Props>,
+    options?: Options<any>
+): LoadableLibrary<Props>;
 
 declare function loadableFunc<Props>(
     loadFn: (props: Props) => Promise<DefaultComponent<Props>>,
@@ -48,9 +56,15 @@ declare const loadable: typeof loadableFunc & { lib: typeof lib };
 export default loadable;
 
 export namespace lazy {
-    function lib<TModule>(loadFn: (props: object) => Promise<TModule>): LoadableLibrary<TModule>;
+    function lib<TModule>(
+        loadFn: (props: object) => Promise<TModule>
+    ): LoadableLibrary<TModule>;
 }
 
-export function lazy<Props>(loadFn: (props: Props) => Promise<DefaultComponent<Props>>): LoadableComponent<Props>;
+export function lazy<Props>(
+    loadFn: (props: Props) => Promise<DefaultComponent<Props>>
+): LoadableComponent<Props>;
 
-export function loadableReady(done?: () => any, options?: LoadableReadyOptions): Promise<void>;
+export function loadableReady(
+    done?: () => any, options?: LoadableReadyOptions
+): Promise<void>;
