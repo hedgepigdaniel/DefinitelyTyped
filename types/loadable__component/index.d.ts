@@ -26,11 +26,25 @@ export type ComponentResolver<Props, Module=DefaultComponent<Props>> = (
     props: Props
 ) => React.ComponentType<Props>;
 
+/**
+ * Guard is able to implement delays, timeouts etc on the client side only.
+ * Receives the import promise and returns the guard promise.
+ * The resulting loadable component does not render until the guard promise
+ * resolves, and considers the import to have failed if the guard promise rejects
+ *
+ * Default: `() => Promise.resolve()`
+ */
+type ImportGuard<Module, Props> = (
+    importPromise: Promise<Module>,
+    props: Props
+  ) => Promise<void>;
+
 export interface Options<Props, Module=DefaultComponent<Props>> {
     cacheKey?(props: Props): any;
     fallback?: JSX.Element;
     ssr?: boolean;
-    resolveComponent?: ComponentResolver<Props, Module>
+    resolveComponent?: ComponentResolver<Props, Module>;
+    guard?: ImportGuard<Module, Props>;
 }
 
 export interface LoadableReadyOptions {
