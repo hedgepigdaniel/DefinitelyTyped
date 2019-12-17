@@ -33,12 +33,12 @@ export type LoadableComponent<Props> =
     React.ComponentType<Props & { fallback?: JSX.Element }> &
     LoadableComponentMethods<Props>;
 
-export type LoadableLibrary<TModule> = React.ComponentType<{
+export type LoadableLibrary<Module> = React.ComponentType<{
     fallback?: JSX.Element;
-    children?: (module: TModule) => React.ReactNode;
-    ref?: React.Ref<TModule>;
+    children?: (module: Module) => React.ReactNode;
+    ref?: React.Ref<Module>;
 }> &
-    TModule &
+    Module &
     LoadableComponentMethods<object>;
 
 declare function lib<Props>(
@@ -56,9 +56,9 @@ declare const loadable: typeof loadableFunc & { lib: typeof lib };
 export default loadable;
 
 export namespace lazy {
-    function lib<TModule>(
-        loadFn: (props: object) => Promise<TModule>
-    ): LoadableLibrary<TModule>;
+    function lib<Module>(
+        loadFn: (props: object) => Promise<Module>
+    ): LoadableLibrary<Module>;
 }
 
 export function lazy<Props>(
