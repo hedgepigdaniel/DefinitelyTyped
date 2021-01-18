@@ -155,7 +155,7 @@ export interface MarkSerializerConfig<S extends Schema = any> {
 export class MarkdownSerializer<S extends Schema = any> {
     constructor(
         nodes: {
-            [name: string]: (
+            [name in keyof S['nodes']]: (
                 state: MarkdownSerializerState<S>,
                 node: ProsemirrorNode<S>,
                 parent: ProsemirrorNode<S>,
@@ -163,7 +163,7 @@ export class MarkdownSerializer<S extends Schema = any> {
             ) => void;
         },
         marks: {
-            [key: string]: MarkSerializerConfig;
+            [key in keyof S['marks']]: MarkSerializerConfig;
         },
     );
     /**
@@ -268,4 +268,6 @@ export class MarkdownSerializerState<S extends Schema = any> {
      * Wraps the passed string in a string of its own
      */
     quote(str: string): string;
+
+    flushClose(size: number): void;
 }

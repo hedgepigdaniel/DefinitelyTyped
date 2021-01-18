@@ -10,13 +10,15 @@
 
 import OrderedMap = require('orderedmap');
 
+export type EmptyStringUnion = 'a' & 'b';
+
 /**
  * Instances of this class represent a match state of a node
  * type's [content expression](#model.NodeSpec.content), and can be
  * used to find out whether further content matches here, and whether
  * a given position is a valid end of the node.
  */
-export class ContentMatch<S extends Schema = any> {
+export class ContentMatch<S extends AnySchema = Schema> {
     /**
      * Get the first matching node type at this match position that can
      * be generated.
@@ -70,7 +72,7 @@ export class ContentMatch<S extends Schema = any> {
  * should not mutate them or their content. Rather, you create new
  * instances whenever needed. The API tries to make this easy.
  */
-export class Fragment<S extends Schema = any> {
+export class Fragment<S extends AnySchema = Schema> {
     /**
      * The size of the fragment, which is the total of the size of its
      * content nodes.
@@ -166,19 +168,19 @@ export class Fragment<S extends Schema = any> {
     /**
      * Deserialize a fragment from its JSON representation.
      */
-    static fromJSON<S extends Schema = any>(schema: S, value?: { [key: string]: any }): Fragment<S>;
+    static fromJSON<S extends AnySchema = Schema>(schema: S, value?: { [key: string]: any }): Fragment<S>;
     /**
      * Build a fragment from an array of nodes. Ensures that adjacent
      * text nodes with the same marks are joined together.
      */
-    static fromArray<S extends Schema = any>(array: Array<ProsemirrorNode<S>>): Fragment<S>;
+    static fromArray<S extends AnySchema = Schema>(array: Array<ProsemirrorNode<S>>): Fragment<S>;
     /**
      * Create a fragment from something that can be interpreted as a set
      * of nodes. For `null`, it returns the empty fragment. For a
      * fragment, the fragment itself. For a node or array of nodes, a
      * fragment containing those nodes.
      */
-    static from<S extends Schema = any>(
+    static from<S extends AnySchema = Schema>(
         nodes?: Fragment<S> | ProsemirrorNode<S> | Array<ProsemirrorNode<S>>,
     ): Fragment<S>;
     /**
@@ -186,14 +188,14 @@ export class Fragment<S extends Schema = any> {
      * contain anything (rather than allocating a new empty fragment for
      * each leaf node).
      */
-    static empty: Fragment;
+    static empty: Fragment<AnySchema>;
 }
 /**
  * These are the options recognized by the
  * [`parse`](#model.DOMParser.parse) and
  * [`parseSlice`](#model.DOMParser.parseSlice) methods.
  */
-export interface ParseOptions<S extends Schema = any> {
+export interface ParseOptions<S extends AnySchema = Schema> {
     /**
      * By default, whitespace is collapsed as per HTML's rules. Pass
      * `true` to preserve whitespace, but normalize newlines to
@@ -334,7 +336,7 @@ export interface ParseRule {
      * present, instead of parsing the node's child nodes, the result of
      * this function is used.
      */
-    getContent?: (<S extends Schema = any>(p: Node, schema: S) => Fragment<S>) | null;
+    getContent?: (<S extends AnySchema = Schema>(p: Node, schema: S) => Fragment<S>) | null;
     /**
      * Controls whether whitespace should be preserved when parsing the
      * content inside the matched element. `false` means whitespace may
@@ -349,7 +351,7 @@ export interface ParseRule {
  * a ProseMirror document conforming to a given schema. Its behavior
  * is defined by an array of [rules](#model.ParseRule).
  */
-export class DOMParser<S extends Schema = any> {
+export class DOMParser<S extends AnySchema = Schema> {
     /**
      * Create a parser that targets the given schema, using the given
      * parsing rules.
@@ -382,7 +384,7 @@ export class DOMParser<S extends Schema = any> {
      * schema's [node specs](#model.NodeSpec.parseDOM), reordered by
      * [priority](#model.ParseRule.priority).
      */
-    static fromSchema<S extends Schema = any>(schema: S): DOMParser<S>;
+    static fromSchema<S extends AnySchema = Schema>(schema: S): DOMParser<S>;
 }
 /**
  * A mark is a piece of information that can be attached to a node,
@@ -392,7 +394,7 @@ export class DOMParser<S extends Schema = any> {
  * `Schema`, which controls which types exist and which
  * attributes they have.
  */
-export class Mark<S extends Schema = any> {
+export class Mark<S extends AnySchema = Schema> {
     /**
      * The type of this mark.
      */
@@ -427,16 +429,16 @@ export class Mark<S extends Schema = any> {
      * Convert this mark to a JSON-serializeable representation.
      */
     toJSON(): { [key: string]: any };
-    static fromJSON<S extends Schema = any>(schema: S, json: { [key: string]: any }): Mark<S>;
+    static fromJSON<S extends AnySchema = Schema>(schema: S, json: { [key: string]: any }): Mark<S>;
     /**
      * Test whether two sets of marks are identical.
      */
-    static sameSet<S extends Schema = any>(a: Array<Mark<S>>, b: Array<Mark<S>>): boolean;
+    static sameSet<S extends AnySchema = Schema>(a: Array<Mark<S>>, b: Array<Mark<S>>): boolean;
     /**
      * Create a properly sorted mark set from null, a single mark, or an
      * unsorted array of marks.
      */
-    static setFrom<S extends Schema = any>(marks?: Mark<S> | Array<Mark<S>>): Array<Mark<S>>;
+    static setFrom<S extends AnySchema = Schema>(marks?: Mark<S> | Array<Mark<S>>): Array<Mark<S>>;
     /**
      * The empty set of marks.
      */
@@ -456,7 +458,7 @@ export class Mark<S extends Schema = any> {
  * **Do not** directly mutate the properties of a `Node` object. See
  * [the guide](/docs/guide/#doc) for more information.
  */
-declare class ProsemirrorNode<S extends Schema = any> {
+declare class ProsemirrorNode<S extends AnySchema = Schema> {
     /**
      * The type of node that this is.
      */
@@ -699,7 +701,7 @@ declare class ProsemirrorNode<S extends Schema = any> {
     /**
      * Deserialize a node from its JSON representation.
      */
-    static fromJSON<S extends Schema = any>(schema: S, json: { [key: string]: any }): ProsemirrorNode<S>;
+    static fromJSON<S extends AnySchema = Schema>(schema: S, json: { [key: string]: any }): ProsemirrorNode<S>;
 }
 export { ProsemirrorNode as Node };
 /**
@@ -712,7 +714,7 @@ export class ReplaceError extends Error {}
  * stores not only a fragment, but also the depth up to which nodes on
  * both side are ‘open’ (cut through).
  */
-export class Slice<S extends Schema = any> {
+export class Slice<S extends AnySchema = Schema> {
     /**
      * Create a slice. When specifying a non-zero open depth, you must
      * make sure that there are nodes of at least that depth at the
@@ -753,12 +755,12 @@ export class Slice<S extends Schema = any> {
     /**
      * Deserialize a slice from its JSON representation.
      */
-    static fromJSON<S extends Schema = any>(schema: S, json?: { [key: string]: any }): Slice<S>;
+    static fromJSON<S extends AnySchema = Schema>(schema: S, json?: { [key: string]: any }): Slice<S>;
     /**
      * Create a slice from a fragment by taking the maximum possible
      * open value on both side of the fragment.
      */
-    static maxOpen<S extends Schema = any>(fragment: Fragment<S>, openIsolating?: boolean): Slice<S>;
+    static maxOpen<S extends AnySchema = Schema>(fragment: Fragment<S>, openIsolating?: boolean): Slice<S>;
     /**
      * The empty slice.
      */
@@ -774,7 +776,31 @@ export class Slice<S extends Schema = any> {
  * parameter will interpret undefined as `this.depth` and negative
  * numbers as `this.depth + value`.
  */
-export class ResolvedPos<S extends Schema = any> {
+export class ResolvedPos<S extends AnySchema = Schema> {
+    /**
+     * @param pos
+     * @param path an array of triples in the form:
+     *
+     * ```
+     * [parentNode0, index0, posOfIndex0, …, parentNodeN, indexN, posOfIndex1]
+     * ```
+     *
+     * Where each group of three elements describes how to navigate a depth in
+     * the document (starting at depth 0).
+     *
+     * - `node` is the parent node of the depth (at depth 0, the parent is doc).
+     * - `index` is the index into node where `pos` is.
+     * - `posOfIndex` is the pos of `index` (relative to the doc). With this
+     *   number you could do `doc.resolve(posOfIndex)` and it'd point to the
+     *   same as `node.child(index)`. It's simply describing the doc-relative
+     *   position of the child at `index`.
+     * @param parentOffset
+     */
+    constructor(pos: number, path: unknown[], parentOffset: number);
+    /**
+     * The internal path representation.
+     */
+    path: unknown[];
     /**
      * The position that was resolved.
      */
@@ -907,7 +933,7 @@ export class ResolvedPos<S extends Schema = any> {
  * Represents a flat range of content, i.e. one that starts and
  * ends in the same node.
  */
-export class NodeRange<S extends Schema = any> {
+export class NodeRange<S extends AnySchema = Schema> {
     /**
      * Construct a node range. `$from` and `$to` should point into the
      * same node until at least the given `depth`, since a node range
@@ -958,7 +984,7 @@ export class NodeRange<S extends Schema = any> {
  * about the node type, such as its name and what kind of node it
  * represents.
  */
-export class NodeType<S extends Schema = any> {
+export class NodeType<S extends AnySchema = Schema> {
     /**
      * The name the node type has in this schema.
      */
@@ -1045,6 +1071,7 @@ export class NodeType<S extends Schema = any> {
         content?: Fragment<S> | ProsemirrorNode<S> | Array<ProsemirrorNode<S>>,
         marks?: Array<Mark<S>>,
     ): ProsemirrorNode<S> | null | undefined;
+    compatibleContent(other: NodeType<S>): boolean;
     /**
      * Returns true if the given fragment is valid content for this node
      * type with the given attributes.
@@ -1069,7 +1096,7 @@ export class NodeType<S extends Schema = any> {
  * [tagged](#model.Mark.type) with type objects, which are
  * instantiated once per `Schema`.
  */
-export class MarkType<S extends Schema = any> {
+export class MarkType<S extends AnySchema = Schema> {
     /**
      * The name of the mark type.
      */
@@ -1304,7 +1331,7 @@ export interface AttributeSpec {
  * occur in conforming documents, and provides functionality for
  * creating and deserializing such documents.
  */
-export class Schema<N extends string = any, M extends string = any> {
+export class Schema<N extends string = EmptyStringUnion, M extends string = EmptyStringUnion> {
     /**
      * Construct a schema from a schema [specification](#model.SchemaSpec).
      */
@@ -1320,16 +1347,16 @@ export class Schema<N extends string = any, M extends string = any> {
     /**
      * An object mapping the schema's node names to node type objects.
      */
-    nodes: { [name in N]: NodeType<Schema<N, M>> } & { [key: string]: NodeType<Schema<N, M>> };
+    nodes: { [name in N]: NodeType<this> };
     /**
      * A map from mark names to mark type objects.
      */
-    marks: { [name in M]: MarkType<Schema<N, M>> } & { [key: string]: MarkType<Schema<N, M>> };
+    marks: { [name in M]: MarkType<this> };
     /**
      * The type of the [default top node](#model.SchemaSpec.topNode)
      * for this schema.
      */
-    topNodeType: NodeType<Schema<N, M>>;
+    topNodeType: NodeType<this>;
     /**
      * An object for storing whatever values modules may want to
      * compute and cache per schema. (If you want to store something
@@ -1343,31 +1370,34 @@ export class Schema<N extends string = any, M extends string = any> {
      * `null`, a `Node`, or an array of nodes.
      */
     node(
-        type: string | NodeType<Schema<N, M>>,
+        type: string | NodeType<this>,
         attrs?: { [key: string]: any },
-        content?: Fragment<Schema<N, M>> | ProsemirrorNode<Schema<N, M>> | Array<ProsemirrorNode<Schema<N, M>>>,
-        marks?: Array<Mark<Schema<N, M>>>,
-    ): ProsemirrorNode<Schema<N, M>>;
+        content?: Fragment<this> | ProsemirrorNode<this> | Array<ProsemirrorNode<this>>,
+        marks?: Array<Mark<this>>,
+    ): ProsemirrorNode<this>;
     /**
      * Create a text node in the schema. Empty text nodes are not
      * allowed.
      */
-    text(text: string, marks?: Array<Mark<Schema<N, M>>>): ProsemirrorNode<Schema<N, M>>;
+    text(text: string, marks?: Array<Mark<this>>): ProsemirrorNode<this>;
     /**
      * Create a mark with the given type and attributes.
      */
-    mark(type: string | MarkType<Schema<N, M>>, attrs?: { [key: string]: any }): Mark<Schema<N, M>>;
+    mark(type: string | MarkType<this>, attrs?: { [key: string]: any }): Mark<this>;
     /**
      * Deserialize a node from its JSON representation. This method is
      * bound.
      */
-    nodeFromJSON(json: { [key: string]: any }): ProsemirrorNode<Schema<N, M>>;
+    nodeFromJSON(json: { [key: string]: any }): ProsemirrorNode<this>;
     /**
      * Deserialize a mark from its JSON representation. This method is
      * bound.
      */
-    markFromJSON(json: { [key: string]: any }): Mark<Schema<N, M>>;
+    markFromJSON(json: { [key: string]: any }): Mark<this>;
 }
+
+export type AnySchema = Schema<any, any>;
+
 export interface DOMOutputSpecArray {
     0: string;
     1?: DOMOutputSpec | 0 | { [attr: string]: string | null | undefined };
@@ -1385,7 +1415,7 @@ export type DOMOutputSpec = string | Node | DOMOutputSpecArray;
  * A DOM serializer knows how to convert ProseMirror nodes and
  * marks of various types to DOM nodes.
  */
-export class DOMSerializer<S extends Schema = any> {
+export class DOMSerializer<S extends AnySchema = Schema> {
     /**
      * Create a serializer. `nodes` should map node names to functions
      * that take a node and return a description of the corresponding
@@ -1432,5 +1462,5 @@ export class DOMSerializer<S extends Schema = any> {
      * Build a serializer using the [`toDOM`](#model.NodeSpec.toDOM)
      * properties in a schema's node and mark specs.
      */
-    static fromSchema<S extends Schema = any>(schema: S): DOMSerializer<S>;
+    static fromSchema<S extends AnySchema = Schema>(schema: S): DOMSerializer<S>;
 }

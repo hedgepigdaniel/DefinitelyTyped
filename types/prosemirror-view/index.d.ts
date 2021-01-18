@@ -9,16 +9,39 @@
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 // TypeScript Version: 3.0
 
-import { DOMParser, DOMSerializer, Node as ProsemirrorNode, ResolvedPos, Slice, Schema, Mark } from 'prosemirror-model';
+import {
+    AnySchema,
+    DOMParser,
+    DOMSerializer,
+    Node as ProsemirrorNode,
+    ResolvedPos,
+    Slice,
+    Schema,
+    Mark,
+} from 'prosemirror-model';
 import { EditorState, Selection, Transaction } from 'prosemirror-state';
 import { Mapping } from 'prosemirror-transform';
 
 // Exported for testing
-export function __serializeForClipboard<S extends Schema = any>(
+export function __serializeForClipboard<S extends AnySchema = Schema>(
     view: EditorView<S>,
     slice: Slice<S>,
 ): { dom: HTMLElement; text: string };
-export function __parseFromClipboard<S extends Schema = any>(
+export function __parseFromClipboard<S extends AnySchema = Schema>(
+    view: EditorView<S>,
+    text: string,
+    html: string,
+    plainText: boolean,
+    $context: ResolvedPos<S>,
+): Slice<S>;
+export function __endComposition<S extends AnySchema = Schema>(view: EditorView<S>, forceUpdate?: boolean): boolean;
+
+// Exported for testing
+export function __serializeForClipboard<S extends Schema = AnySchema>(
+    view: EditorView<S>,
+    slice: Slice<S>,
+): { dom: HTMLElement; text: string };
+export function __parseFromClipboard<S extends Schema = AnySchema>(
     view: EditorView<S>,
     text: string,
     html: string,
@@ -30,7 +53,7 @@ export function __endComposition(view: EditorView, forceUpdate?: boolean): boole
 /**
  * The `spec` for a widget decoration
  */
-export interface WidgetDecorationSpec {
+export interface WidgetDecorationSpec<S extends Schema = AnySchemaSchema> {
     /**
      * Controls which side of the document position this widget is
      * associated with. When negative, it is drawn before a cursor
@@ -52,7 +75,7 @@ export interface WidgetDecorationSpec {
     /**
      * The precise set of marks to draw around the widget.
      */
-    marks?: Mark[] | null;
+    marks?: Mark<S>[] | null;
     /**
      * Can be used to control which DOM events, when they bubble out
      * of this widget, the editor view should ignore.
@@ -87,6 +110,7 @@ export interface InlineDecorationSpec {
      * Determines how the right side of the decoration is mapped.
      */
     inclusiveEnd?: boolean | null;
+    [key: string]: any;
 }
 /**
  * Decoration objects can be provided to the view through the
@@ -116,32 +140,32 @@ export class Decoration<T extends object = { [key: string]: any }> {
      * also directly pass a DOM node. getPos can be used to find the
      * widget's current document position.
      */
-    static widget<T extends object = { [key: string]: any }>(
+    static widget<S extends AnySchema = Schema>(
         pos: number,
-        toDOM: ((view: EditorView, getPos: () => number) => Node) | Node,
-        spec?: T & WidgetDecorationSpec,
-    ): Decoration<T & WidgetDecorationSpec>;
+        toDOM: ((view: EditorView<S>, getPos: () => number) => Node) | Node,
+        spec?: WidgetDecorationSpec<S>,
+    ): Decoration<S>;
     /**
      * Creates an inline decoration, which adds the given attributes to
      * each inline node between `from` and `to`.
      */
-    static inline<T extends object = { [key: string]: any }>(
+    static inline<S extends AnySchema = Schema>(
         from: number,
         to: number,
         attrs: DecorationAttrs,
-        spec?: T & InlineDecorationSpec,
-    ): Decoration<T & InlineDecorationSpec>;
+        spec?: InlineDecorationSpec,
+    ): Decoration<S>;
     /**
      * Creates a node decoration. `from` and `to` should point precisely
      * before and after a node in the document. That node, and only that
      * node, will receive the given attributes.
      */
-    static node<T extends object = { [key: string]: any }>(
+    static node<S extends AnySchema = Schema>(
         from: number,
         to: number,
         attrs: DecorationAttrs,
-        spec?: T,
-    ): Decoration<T>;
+        spec?: { [key: string]: any },
+    ): Decoration<S>;
 }
 /**
  * A set of attributes to add to a decorated node. Most properties
@@ -175,7 +199,7 @@ export interface DecorationAttrs {
  * compare them. This is a persistent data structure—it is not
  * modified, updates create a new value.
  */
-export class DecorationSet<S extends Schema = any> {
+export class DecorationSet<S extends Schema = AnySchema> {
     /**
      * Find all decorations in this set which touch the given range
      * (including decorations that start or end directly at the
@@ -209,7 +233,7 @@ export class DecorationSet<S extends Schema = any> {
      * Create a set of decorations, using the structure of the given
      * document.
      */
-    static create<S extends Schema = any>(doc: ProsemirrorNode<S>, decorations: Decoration[]): DecorationSet<S>;
+    static create<S extends Schema = AnySchema>(doc: ProsemirrorNode<S>, decorations: Decoration[]): DecorationSet<S>;
     /**
      * The empty set of decorations.
      */
@@ -220,7 +244,7 @@ export class DecorationSet<S extends Schema = any> {
  * editable document. Its state and behavior are determined by its
  * [props](#view.DirectEditorProps).
  */
-export class EditorView<S extends Schema = any> {
+export class EditorView<S extends Schema = AnySchema> {
     /**
      * Create a view. `place` may be a DOM node that the editor should
      * be appended to, a function that will place it into the document,
@@ -228,7 +252,7 @@ export class EditorView<S extends Schema = any> {
      * document container. If it is `null`, the editor will not be added
      * to the document.
      */
-    constructor(place: Node | ((p: Node) => void) | { mount: Node } | undefined, props: DirectEditorProps<S>);
+    constructor(place: Node | ((p: Node) => void) | { mount: Node } | null | undefined, props: DirectEditorProps<S>);
     /**
      * The view's current [state](#state.EditorState).
      */
@@ -280,7 +304,10 @@ export class EditorView<S extends Schema = any> {
      * treated as the identity function (the prop value is returned
      * directly).
      */
-    someProp(propName: string, f?: (prop: any) => any): any;
+    someProp<P extends keyof DirectEditorProps<S>>(
+        propName: P,
+        f?: (prop: unknown) => boolean | undefined,
+    ): DirectEditorProps<S>[P] | undefined;
     /**
      * Query whether the view has focus.
      */
@@ -333,7 +360,7 @@ export class EditorView<S extends Schema = any> {
      *
      * This is intended to be able to call things like getBoundingClientRect
      * on that DOM node. Do not mutate the editor DOM directly, or add
-     * styling this way, since that will be immediately overriden by the
+     * styling this way, since that will be immediately overridden by the
      * editor as it redraws the node.
      */
     nodeDOM(pos: number): Node | null | undefined;
@@ -387,7 +414,7 @@ export class EditorView<S extends Schema = any> {
  * them returns true. For some props, the first plugin that yields a
  * value gets precedence.
  */
-export interface EditorProps<ThisT = unknown, S extends Schema = any> {
+export interface EditorProps<ThisT = unknown, S extends Schema = AnySchema> {
     /**
      * Can be an object mapping DOM event type names to functions that
      * handle them. Such functions will be called before any handling
@@ -580,7 +607,7 @@ export interface EditorProps<ThisT = unknown, S extends Schema = any> {
      * A set of [document decorations](#view.Decoration) to show in the
      * view.
      */
-    decorations?: ((this: ThisT, state: EditorState<S>) => DecorationSet<S> | null | undefined) | null;
+    decorations?: ((this: ThisT, state: EditorState<S>) => DecorationSet<S> | null | undefined) | null | undefined;
     /**
      * When this returns false, the content of the view is not directly
      * editable.
@@ -615,7 +642,7 @@ export interface EditorProps<ThisT = unknown, S extends Schema = any> {
 /**
  * A mapping of dom events.
  */
-export type HandleDOMEventsProp<ThisT = unknown, S extends Schema = any> = Partial<
+export type HandleDOMEventsProp<ThisT = unknown, S extends Schema = AnySchema> = Partial<
     {
         [K in keyof DocumentEventMap]: (this: ThisT, view: EditorView<S>, event: DocumentEventMap[K]) => boolean;
     }
@@ -626,7 +653,7 @@ export type HandleDOMEventsProp<ThisT = unknown, S extends Schema = any> = Parti
  * The props object given directly to the editor view supports two
  * fields that can't be used in plugins:
  */
-export interface DirectEditorProps<S extends Schema = any> extends EditorProps<unknown, S> {
+export interface DirectEditorProps<S extends Schema = AnySchema> extends EditorProps<unknown, S> {
     /**
      * The current state of the editor.
      */
@@ -652,7 +679,7 @@ export interface DirectEditorProps<S extends Schema = any> extends EditorProps<u
  *
  * Objects returned as node views must conform to this interface.
  */
-export interface NodeView<S extends Schema = any> {
+export interface NodeView<S extends Schema = AnySchema> {
     /**
      * The outer DOM node that represents the document node. When not
      * given, the default strategy is used to create a DOM node.

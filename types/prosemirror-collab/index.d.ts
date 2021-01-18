@@ -8,7 +8,7 @@
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 // TypeScript Version: 2.9
 
-import { Schema } from 'prosemirror-model';
+import { AnySchema, Schema } from 'prosemirror-model';
 import { EditorState, Plugin, Transaction } from 'prosemirror-state';
 import { Step } from 'prosemirror-transform';
 
@@ -26,7 +26,10 @@ import { Step } from 'prosemirror-transform';
  *     This client's ID, used to distinguish its changes from those of
  *     other clients. Defaults to a random 32-bit number.
  */
-export function collab(config?: { version?: number | null; clientID?: number | string | null }): Plugin;
+export function collab<S extends AnySchema>(config?: {
+    version?: number | null;
+    clientID?: number | string | null;
+}): Plugin<unknown, S>;
 
 /**
  * Create a transaction that represents a set of new steps received from
@@ -43,7 +46,7 @@ export function collab(config?: { version?: number | null; clientID?: number | s
  *     usually prefer this, but it isn't done by default for reasons
  *     of backwards compatibility.
  */
-export function receiveTransaction<S extends Schema = any>(
+export function receiveTransaction<S extends AnySchema = Schema>(
     state: EditorState<S>,
     steps: Array<Step<S>>,
     clientIDs: Array<number | string>,
@@ -61,7 +64,7 @@ export function receiveTransaction<S extends Schema = any>(
  * rebased, whereas the origin transactions are still the old,
  * unchanged objects.
  */
-export function sendableSteps<S extends Schema = any>(
+export function sendableSteps<S extends AnySchema = Schema>(
     state: EditorState<S>,
 ):
     | {
@@ -77,4 +80,4 @@ export function sendableSteps<S extends Schema = any>(
  * Get the version up to which the collab plugin has synced with the
  * central authority.
  */
-export function getVersion(state: EditorState): number;
+export function getVersion<S extends AnySchema = Schema>(state: EditorState<S>): number;

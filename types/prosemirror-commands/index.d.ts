@@ -8,7 +8,7 @@
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 // TypeScript Version: 3.0
 
-import { MarkType, Node as ProsemirrorNode, NodeType, Schema } from 'prosemirror-model';
+import { AnySchema, MarkType, Node as ProsemirrorNode, NodeType, Schema } from 'prosemirror-model';
 import { EditorState, Transaction } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 
@@ -20,18 +20,18 @@ import { EditorView } from 'prosemirror-view';
  * passed, the command should do a 'dry run', determining whether it is
  * applicable, but not actually doing anything.
  */
-export interface Command<S extends Schema = any> {
+export interface Command<S extends AnySchema = Schema> {
     (state: EditorState<S>, dispatch?: (tr: Transaction<S>) => void, view?: EditorView<S>): boolean;
 }
 
-export interface Keymap<S extends Schema = any> {
+export interface Keymap<S extends AnySchema = Schema> {
     [key: string]: Command<S>;
 }
 
 /**
  * Delete the selection, if there is one.
  */
-export function deleteSelection<S extends Schema = any>(
+export function deleteSelection<S extends AnySchema = Schema>(
     state: EditorState<S>,
     dispatch?: (tr: Transaction<S>) => void,
 ): boolean;
@@ -44,7 +44,7 @@ export function deleteSelection<S extends Schema = any>(
  * into a parent of the previous block. Will use the view for accurate
  * (bidi-aware) start-of-textblock detection if given.
  */
-export function joinBackward<S extends Schema = any>(
+export function joinBackward<S extends AnySchema = Schema>(
     state: EditorState<S>,
     dispatch?: (tr: Transaction<S>) => void,
     view?: EditorView<S>,
@@ -57,7 +57,7 @@ export function joinBackward<S extends Schema = any>(
  * commands, as a fall-back behavior when the schema doesn't allow
  * deletion at the selected point.
  */
-export function selectNodeBackward<S extends Schema = any>(
+export function selectNodeBackward<S extends AnySchema = Schema>(
     state: EditorState<S>,
     dispatch?: (tr: Transaction<S>) => void,
     view?: EditorView<S>,
@@ -69,7 +69,7 @@ export function selectNodeBackward<S extends Schema = any>(
  * block closer to this one in the tree structure. Will use the view
  * for accurate start-of-textblock detection if given.
  */
-export function joinForward<S extends Schema = any>(
+export function joinForward<S extends AnySchema = Schema>(
     state: EditorState<S>,
     dispatch?: (tr: Transaction<S>) => void,
     view?: EditorView<S>,
@@ -82,7 +82,7 @@ export function joinForward<S extends Schema = any>(
  * commands, to provide a fall-back behavior when the schema doesn't
  * allow deletion at the selected point.
  */
-export function selectNodeForward<S extends Schema = any>(
+export function selectNodeForward<S extends AnySchema = Schema>(
     state: EditorState<S>,
     dispatch?: (tr: Transaction<S>) => void,
     view?: EditorView<S>,
@@ -92,12 +92,15 @@ export function selectNodeForward<S extends Schema = any>(
  * closest ancestor block of the selection that can be joined, with
  * the sibling above it.
  */
-export function joinUp<S extends Schema = any>(state: EditorState<S>, dispatch?: (tr: Transaction<S>) => void): boolean;
+export function joinUp<S extends AnySchema = Schema>(
+    state: EditorState<S>,
+    dispatch?: (tr: Transaction<S>) => void,
+): boolean;
 /**
  * Join the selected block, or the closest ancestor of the selection
  * that can be joined, with the sibling after it.
  */
-export function joinDown<S extends Schema = any>(
+export function joinDown<S extends AnySchema = Schema>(
     state: EditorState<S>,
     dispatch?: (tr: Transaction<S>) => void,
 ): boolean;
@@ -105,13 +108,16 @@ export function joinDown<S extends Schema = any>(
  * Lift the selected block, or the closest ancestor block of the
  * selection that can be lifted, out of its parent node.
  */
-export function lift<S extends Schema = any>(state: EditorState<S>, dispatch?: (tr: Transaction<S>) => void): boolean;
+export function lift<S extends AnySchema = Schema>(
+    state: EditorState<S>,
+    dispatch?: (tr: Transaction<S>) => void,
+): boolean;
 /**
  * If the selection is in a node whose type has a truthy
  * [`code`](#model.NodeSpec.code) property in its spec, replace the
  * selection with a newline character.
  */
-export function newlineInCode<S extends Schema = any>(
+export function newlineInCode<S extends AnySchema = Schema>(
     state: EditorState<S>,
     dispatch?: (tr: Transaction<S>) => void,
 ): boolean;
@@ -120,7 +126,7 @@ export function newlineInCode<S extends Schema = any>(
  * [`code`](#model.NodeSpec.code) property in its spec, create a
  * default block after the code block, and move the cursor there.
  */
-export function exitCode<S extends Schema = any>(
+export function exitCode<S extends AnySchema = Schema>(
     state: EditorState<S>,
     dispatch?: (tr: Transaction<S>) => void,
 ): boolean;
@@ -128,7 +134,7 @@ export function exitCode<S extends Schema = any>(
  * If a block node is selected, create an empty paragraph before (if
  * it is its parent's first child) or after it.
  */
-export function createParagraphNear<S extends Schema = any>(
+export function createParagraphNear<S extends AnySchema = Schema>(
     state: EditorState<S>,
     dispatch?: (tr: Transaction<S>) => void,
 ): boolean;
@@ -136,7 +142,7 @@ export function createParagraphNear<S extends Schema = any>(
  * If the cursor is in an empty textblock that can be lifted, lift the
  * block.
  */
-export function liftEmptyBlock<S extends Schema = any>(
+export function liftEmptyBlock<S extends AnySchema = Schema>(
     state: EditorState<S>,
     dispatch?: (tr: Transaction<S>) => void,
 ): boolean;
@@ -144,7 +150,7 @@ export function liftEmptyBlock<S extends Schema = any>(
  * Split the parent block of the selection. If the selection is a text
  * selection, also delete its content.
  */
-export function splitBlock<S extends Schema = any>(
+export function splitBlock<S extends AnySchema = Schema>(
     state: EditorState<S>,
     dispatch?: (tr: Transaction<S>) => void,
 ): boolean;
@@ -152,7 +158,7 @@ export function splitBlock<S extends Schema = any>(
  * Acts like [`splitBlock`](#commands.splitBlock), but without
  * resetting the set of active marks at the cursor.
  */
-export function splitBlockKeepMarks<S extends Schema = any>(
+export function splitBlockKeepMarks<S extends AnySchema = Schema>(
     state: EditorState<S>,
     dispatch?: (tr: Transaction<S>) => void,
 ): boolean;
@@ -160,14 +166,14 @@ export function splitBlockKeepMarks<S extends Schema = any>(
  * Move the selection to the node wrapping the current selection, if
  * any. (Will not select the document node.)
  */
-export function selectParentNode<S extends Schema = any>(
+export function selectParentNode<S extends AnySchema = Schema>(
     state: EditorState<S>,
     dispatch?: (tr: Transaction<S>) => void,
 ): boolean;
 /**
  * Select the whole document.
  */
-export function selectAll<S extends Schema = any>(
+export function selectAll<S extends AnySchema = Schema>(
     state: EditorState<S>,
     dispatch?: (tr: Transaction<S>) => void,
 ): boolean;
@@ -175,7 +181,7 @@ export function selectAll<S extends Schema = any>(
  * Wrap the selection in a node of the given type with the given
  * attributes.
  */
-export function wrapIn<S extends Schema = any>(
+export function wrapIn<S extends AnySchema = Schema>(
     nodeType: NodeType<S>,
     attrs?: { [key: string]: any },
 ): (state: EditorState<S>, dispatch?: (tr: Transaction<S>) => void) => boolean;
@@ -183,7 +189,7 @@ export function wrapIn<S extends Schema = any>(
  * Returns a command that tries to set the textblock around the
  * selection to the given node type with the given attributes.
  */
-export function setBlockType<S extends Schema = any>(
+export function setBlockType<S extends AnySchema = Schema>(
     nodeType: NodeType<S>,
     attrs?: { [key: string]: any },
 ): (state: EditorState<S>, dispatch?: (tr: Transaction<S>) => void) => boolean;
@@ -196,7 +202,7 @@ export function setBlockType<S extends Schema = any>(
  * marks](#state.EditorState.storedMarks) instead of a range of the
  * document.
  */
-export function toggleMark<S extends Schema = any>(
+export function toggleMark<S extends AnySchema = Schema>(
     markType: MarkType<S>,
     attrs?: { [key: string]: any },
 ): (state: EditorState<S>, dispatch?: (tr: Transaction<S>) => void) => boolean;
@@ -208,7 +214,7 @@ export function toggleMark<S extends Schema = any>(
  * array of strings was passed, if their node type name is in that
  * array.
  */
-export function autoJoin<S extends Schema = any>(
+export function autoJoin<S extends AnySchema = Schema>(
     command: (state: EditorState<S>, p1?: (tr: Transaction<S>) => void) => boolean,
     isJoinable: ((before: ProsemirrorNode<S>, after: ProsemirrorNode<S>) => boolean) | string[],
 ): (state: EditorState<S>, p1?: (tr: Transaction<S>) => void) => boolean;
@@ -216,7 +222,7 @@ export function autoJoin<S extends Schema = any>(
  * Combine a number of command functions into a single function (which
  * calls them one by one until one returns true).
  */
-export function chainCommands<S extends Schema = any>(...commands: Array<Command<S>>): Command<S>;
+export function chainCommands<S extends AnySchema = Schema>(...commands: Array<Command<S>>): Command<S>;
 /**
  * A basic keymap containing bindings not specific to any schema.
  * Binds the following keys (when multiple commands are listed, they
